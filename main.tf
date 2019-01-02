@@ -1,5 +1,3 @@
-# Note: The bucket name needs to carry the same name as the domain!
-# http://stackoverflow.com/a/5048129/2966951
 resource "aws_s3_bucket" "site" {
   bucket = "${var.site_prefix}.${var.site_name}"
   acl = "public-read"
@@ -60,7 +58,6 @@ resource "aws_cloudfront_distribution" "cdn" {
     domain_name = "${var.site_prefix}.${var.site_name}.s3.amazonaws.com"
   }
 
-  # If using route53 aliases for DNS we need to declare it here too, otherwise we'll get 403s.
   aliases = ["${var.site_prefix}.${var.site_name}"]
 
   enabled             = true
@@ -90,10 +87,8 @@ resource "aws_cloudfront_distribution" "cdn" {
       response_page_path = "/error.html"
   } 
 
-  # The cheapest priceclass
   price_class = "PriceClass_100"
 
-  # This is required to be specified even if it's not used.
   restrictions {
     geo_restriction {
       restriction_type = "none"
@@ -104,6 +99,6 @@ resource "aws_cloudfront_distribution" "cdn" {
   viewer_certificate {
     acm_certificate_arn = "${var.aws_cert_arn}"
     ssl_support_method  = "sni-only"
-    minimum_protocol_version = "TLSv1.1_2016" # defaults wrong, set
+    minimum_protocol_version = "TLSv1.1_2016"
   }
 }
