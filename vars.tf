@@ -10,20 +10,17 @@ variable "aws_secret_key" {
     description = "aws secret key"
 }
 
+variable "aws_aliases" {
+    type = "list"
+    description = "aliases"
+}
+
 variable "aws_cert_arn" {
     description = "The certifate arn"
 }
 
 variable "hosted_zone_id" {
     description = "The ID for the cloudfront A name record to be applied"
-}
-
-variable "site_name" {
-    description = "The DNS domain name of the site being created. e.g. domain.com"
-}
-
-variable "site_prefix" {
-    description = "The site prefix domain name of the site being created. e.g. www"
 }
 
 provider "aws" {

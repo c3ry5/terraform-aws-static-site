@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "site" {
-  bucket = "${var.site_prefix}.${var.site_name}"
+  bucket = "${var.aws_aliases[0]}"
   acl = "public-read"
   policy = <<EOF
 {
@@ -12,7 +12,7 @@ resource "aws_s3_bucket" "site" {
         "s3:GetObject"
       ],
       "Effect": "Allow",
-      "Resource": "arn:aws:s3:::${var.site_prefix}.${var.site_name}/*",
+      "Resource": "arn:aws:s3:::${var.aws_aliases[0]}/*",
       "Principal": "*"
     }
   ]
@@ -40,9 +40,10 @@ resource "aws_s3_bucket_object" "err" {
   etag = "${md5(file("src/error.html"))}"
 }
 
-resource "aws_route53_record" "root_domain" {
+resource "aws_route53_record" "domain" {
+  count = "${length(var.aws_aliases)}"
   zone_id = "${var.hosted_zone_id}"
-  name = "${var.site_prefix}.${var.site_name}"
+  name = "${element(var.aws_aliases, count.index)}"
   type = "A"
 
   alias {
@@ -54,11 +55,11 @@ resource "aws_route53_record" "root_domain" {
 
 resource "aws_cloudfront_distribution" "cdn" {
   origin {
-    origin_id   = "${var.site_prefix}.${var.site_name}-origin"
-    domain_name = "${var.site_prefix}.${var.site_name}.s3.amazonaws.com"
+    origin_id   = "${var.aws_aliases[0]}-origin"
+    domain_name = "${var.aws_aliases[0]}.s3.amazonaws.com"
   }
 
-  aliases = ["${var.site_prefix}.${var.site_name}"]
+  aliases = ["${var.aws_aliases}"]
 
   enabled             = true
   default_root_object = "index.html"
@@ -66,7 +67,7 @@ resource "aws_cloudfront_distribution" "cdn" {
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "${var.site_prefix}.${var.site_name}-origin"
+    target_origin_id = "${var.aws_aliases[0]}-origin"
 
     forwarded_values {
       query_string = true
@@ -75,7 +76,7 @@ resource "aws_cloudfront_distribution" "cdn" {
       }
     }
 
-    viewer_protocol_policy = "https-only"
+    viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400

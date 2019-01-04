@@ -21,6 +21,7 @@ aws_access_key=""
 aws_secret_key=""
 aws_cert_arn=""
 hosted_zone_id=""
+aws_aliases=["",""]
 ```
 
 ## Running
@@ -28,17 +29,17 @@ hosted_zone_id=""
 It is then quite simple you can test your plan by running something like this
 
 ```
-terraform plan -var 'site_prefix=www' -var 'site_name=domain.com';
+terraform plan;
 ```
 
 and then apply it to your infrastructure like this
 
 ```
-terraform apply -var 'site_prefix=www' -var 'site_name=domain.com';
+terraform apply;
 ```
 
 Don't fear if you make a mistake you can always destroy the infrastructure you created
 
 ```
-terraform destroy -var 'site_prefix=www' -var 'site_name=domain.com';
+terraform destroy;
 ```
